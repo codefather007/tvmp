@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taksa Vjetore e Automjeteve të Përdorura - TVMP</title>
+    <script
+        src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+        crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: rgb(91,197,210);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background: linear-gradient(90deg,#65c3d3 0%,#3265b0 100%);
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 1.5rem;
+            max-width: 700px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #3265b0;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 1.5em;
+        }
+
+        p {
+            color: #333;
+            margin-bottom: 16px;
+            text-align: justify;
+            font-size: 12px;
+        }
+
+        ol {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: justify;
+            font-size: 12px;
+            list-style-position: inside;
+        }
+
+        ol li {
+            margin-bottom: 0;
+            text-align: justify;
+            font-size: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #65c3d3;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Toggle: ligji në fuqi / ndryshimet e propozuara */
+        .mode-toggle {
+            position: relative;
+            display: flex;
+            gap: 4px;
+            background: #eef3f8;
+            border-radius: 999px;
+            padding: 4px;
+            margin-bottom: 15px;
+        }
+
+        .mode-toggle input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .mode-toggle label {
+            flex: 1;
+            margin: 0;
+            padding: 10px 14px;
+            text-align: center;
+            border-radius: 999px;
+            cursor: pointer;
+            color: #3265b0;
+            font-size: 14px;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        .mode-toggle label:hover {
+            background: rgba(101, 195, 211, 0.15);
+        }
+
+        .mode-toggle input[type="radio"]:checked + label {
+            background: linear-gradient(90deg,#65c3d3 0%,#3265b0 100%);
+            color: white;
+        }
+
+        .mode-toggle input[type="radio"]:focus-visible + label {
+            outline: 2px solid #3265b0;
+            outline-offset: 2px;
+        }
+
+        .mode-notice {
+            display: none;
+            margin-bottom: 25px;
+            padding: 10px 14px;
+            background: #fff8e1;
+            border-left: 4px solid #f0ad4e;
+            border-radius: 6px;
+            color: #6d5200;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .mode-notice.show {
+            display: block;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 8px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .checkbox-item:hover {
+            border-color: #65c3d3;
+            background: #f8f9ff;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            margin: 0;
+            margin-right: 10px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #65c3d3;
+        }
+
+        .checkbox-item input[type="checkbox"]:checked + label {
+            color: #3265b0;
+            font-weight: 600;
+        }
+
+        .checkbox-item.checked {
+            border-color: #65c3d3;
+            background: #f0f4ff;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .calculate-btn, .reset-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .calculate-btn {
+            background: #65c3d3;
+            background: linear-gradient(90deg,#65c3d3 0%,#3265b0 100%);
+            color: white;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+
+        .reset-btn {
+            background: #65c3d3;
+            color: white;
+        }
+
+        .reset-btn:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(108, 117, 125, 0.3);
+        }
+
+        .reset-btn:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 5px solid #65c3d3;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .result-detail {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .result-detail label {
+            color: #666;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .result-detail .value {
+            color: #333;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .tax-amount {
+            padding: 20px;
+            background: linear-gradient(135deg, #65c3d3 0%, #764ba2 100%);
+            color: white;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .tax-amount .label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .tax-amount .amount {
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+
+        .error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <p style="text-align: center;">
+        </p>
+        <h1>Taksa Vjetore e Automjeteve të Përdorura - TVMP</h1>
+
+        <div class="mode-toggle" role="radiogroup" aria-label="Baza ligjore e llogaritjes">
+            <input type="radio" id="modeCurrent" name="taxMode" value="current" checked>
+            <label for="modeCurrent">Ligji në fuqi</label>
+            <input type="radio" id="modeProposed" name="taxMode" value="proposed">
+            <label for="modeProposed">Ndryshimet e propozuara</label>
+        </div>
+        <div class="mode-notice" id="modeNotice">
+            Llogaritja bëhet sipas ndryshimeve të propozuara: taksa e lëndës djegëse bëhet 20 lekë (benzinë) dhe 25 lekë (naftë) për mjetet deri në 2,000 cc, dhe 21 lekë (benzinë) dhe 26 lekë (naftë) për mjetet mbi 2,000 cc. Këto ndryshime nuk janë ende në fuqi.
+        </div>
+        
+        <form id="taxForm">
+            <div class="form-group">
+                <label>Lloji i mjetit *</label>
+                <div class="checkbox-group" id="vehicleTypeGroup">
+                    <div class="checkbox-item" data-value="Cars">
+                        <input type="checkbox" id="vehicleTypeCars" name="vehicleType" value="Cars">
+                        <label for="vehicleTypeCars">Motomjete, autovetura, ATP</label>
+                    </div>
+                    <div class="checkbox-item" data-value="Trucks">
+                        <input type="checkbox" id="vehicleTypeTrucks" name="vehicleType" value="Trucks">
+                        <label for="vehicleTypeTrucks">Gjithe te tjerat (APV)</label>
+                    </div>
+                    <div class="checkbox-item" data-value="Buses">
+                        <input type="checkbox" id="vehicleTypeBuses" name="vehicleType" value="Buses">
+                        <label for="vehicleTypeBuses">Autobuset</label>
+                    </div>
+                </div>
+                <div class="error" id="vehicleTypeError">Zgjidhni llojin e mjetit!</div>
+            </div>
+
+            <div class="form-group">
+                <label for="engineCapacity">Cilindrata e Motorit (cc) *</label>
+                <input type="number" id="engineCapacity" name="engineCapacity" min="0" step="1" placeholder="shembull: 2000, 2500. 0 në rastin e mjetit elektrik" required="">
+                <div class="error" id="engineCapacityError">Shkruani Cilindratën e Motorit!</div>
+            </div>
+
+            <div class="form-group">
+                <label>Lënda Djegëse *</label>
+                <div class="checkbox-group" id="fuelTypeGroup">
+                    <div class="checkbox-item" data-value="Petrol">
+                        <input type="checkbox" id="fuelTypePetrol" name="fuelType" value="Petrol">
+                        <label for="fuelTypePetrol">Benzinë</label>
+                    </div>
+                    <div class="checkbox-item" data-value="Diesel">
+                        <input type="checkbox" id="fuelTypeDiesel" name="fuelType" value="Diesel">
+                        <label for="fuelTypeDiesel">Naftë</label>
+                    </div>
+                    <div class="checkbox-item" data-value="Electric">
+                        <input type="checkbox" id="fuelTypeElectric" name="fuelType" value="Electric">
+                        <label for="fuelTypeElectric">Elektrike</label>
+                    </div>
+                </div>
+                <div class="error" id="fuelTypeError">Zgjidhni Lëndën Djegëse!</div>
+            </div>
+
+            <div class="form-group">
+                <label for="makeYear">Viti i Prodhimit *</label>
+                <input type="number" id="makeYear" name="makeYear" min="1900" step="1" placeholder="shembull: 2017" required="">
+                <div class="error" id="makeYearError">Vendosni vitin e prodhimit</div>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="calculate-btn">Përllogarit Taksën</button>
+                <button type="button" class="reset-btn" id="resetBtn">Rifillo</button>
+            </div>
+        </form>
+
+        <div class="result" id="result">
+            <div class="tax-amount">
+                <div class="label" id="resultTaxLabel">Shuma Totale e Taksës</div>
+                <div class="amount" id="resultTaxAmount"></div>
+            </div>
+
+            <div class="result-detail">
+                <label>Baza Ligjore:</label>
+                <span class="value" id="resultMode"></span>
+            </div>
+
+            <div class="result-detail">
+                <label>Lloji i Mjetit:</label>
+                <span class="value" id="resultVehicleType"></span>
+            </div>
+            
+            <div class="result-detail">
+                <label>Mosha e Mjetit:</label>
+                <span class="value" id="resultAge"></span>
+            </div>
+            
+            <div class="result-detail">
+                <label>Cilindrata e Motorit:</label>
+                <span class="value" id="resultEngineCapacity"></span>
+            </div>
+            
+            <div class="result-detail">
+                <label>Lënda Djegëse:</label>
+                <span class="value" id="resultFuelType"></span>
+            </div>
+            
+            <div class="result-detail">
+                <label>Taksa e Lëndës Djegëse:</label>
+                <span class="value" id="resultFuelTax"></span>
+            </div>
+            
+            <div class="result-detail">
+                <label>Koeficienti:</label>
+                <span class="value" id="resultCoefficient"></span>
+            </div>
+            
+            <div class="result-detail">
+                <label>Taksa Bazë:</label>
+                <span class="value" id="resultBaseTax"></span>
+            </div>
+            
+            <div class="result-detail" id="resultVATRow" style="display: none;">
+                <label>TVSH:</label>
+                <span class="value" id="resultVAT"></span>
+            </div>
+            
+        </div>
+        
+        <br><hr><br>
+        <p>Llogaritja e mësipërme është vetëm për TVMP dhe nuk përfshin detyrimet për taksën e regjistrimit fillestar dhe taksën e përvitshme për automjetet luksoze.<br>
+            <br>
+            “Automjet luksoz” konsiderohet autovetura deri në 6+1, e cila plotëson të paktën njërin nga kushtet e mëposhtme:
+            a) cilindratën të barabartë ose më të madhe se 3000 cm3, ose b) vlerën/çmimin të barabartë ose më shumë se 5.000.000 lekë.</p>
+            <p>*Kjo llogaritje takse nuk përfshin gjithashtu: 1 - gjobë për pagesë të vonuar të TVMP dhe TVML (10 ditë pas përfundimit të afatit të vlefshmërisë, 0.06% të 
+shumës së detyrimit të papaguar për çdo ditë vonesë nga dita e fundit e vlefshmërisë së taksës. Në asnjë rast, gjoba nuk llogaritet për një periudhë më të gjatë se 365 ditë kalendarike) / 2 - gjobë për tejkalim të afatit të kontrollit teknik vjetor / 3 - gjobë të vendosur nga struktura e Task - Forcës.</p>
+            <p>Përjashtohen nga pagimi i taksës vjetore të mjeteve të përdorura:</p>
+            <ol type="a">
+                <li>mjetet në pronësi të ambasadave dhe organizatave ndërkombëtare që gëzojnë status diplomatik,</li>
+                <li>mjetet e bllokuara me vendim të organeve të drejtësisë,</li>
+                <li>mjetet me ç'regjistrim të përkohshëm,</li>
+                <li>autoveturat në zotërim të invalidëve, </li>
+                <li>makinat bujqësore.</li>
+                </ol>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // Coefficient tables for each vehicle type
+            const coefficients = {
+                Cars: {
+                    1: 0, 2: 0, 3: 0, 4: 0.18, 5: 0.19, 6: 0.2, 7: 0.21, 8: 0.22, 9: 0.23,
+                    10: 0.24, 11: 0.28, 12: 0.32, 13: 0.36, 14: 0.4, 15: 0.44, 16: 0.48,
+                    17: 0.52, 18: 0.56, 19: 0.6, 20: 0.64, 21: 0.68, 22: 0.7, 23: 0.72, 24: 0.74
+                },
+                Trucks: {
+                    1: 0, 2: 0, 3: 0, 4: 0.2, 5: 0.22, 6: 0.24, 7: 0.26, 8: 0.28, 9: 0.3,
+                    10: 0.32, 11: 0.34, 12: 0.36, 13: 0.38, 14: 0.4, 15: 0.42, 16: 0.44,
+                    17: 0.46, 18: 0.48, 19: 0.5, 20: 0.52, 21: 0.54, 22: 0.56, 23: 0.58, 24: 0.6
+                },
+                Buses: {
+                    1: 0, 2: 0, 3: 0, 4: 0.07, 5: 0.08, 6: 0.09, 7: 0.1, 8: 0.11, 9: 0.12,
+                    10: 0.13, 11: 0.14, 12: 0.15, 13: 0.16, 14: 0.17, 15: 0.2, 16: 0.23,
+                    17: 0.26, 18: 0.29, 19: 0.32, 20: 0.35, 21: 0.38, 22: 0.4, 23: 0.42, 24: 0.44
+                }
+            };
+
+            // Fuel tax per cc, by law mode and engine-capacity band.
+            // "upTo2000" = deri në 2,000 cc (përfshirë), "above2000" = mbi 2,000 cc
+            const ENGINE_THRESHOLD_CC = 2000;
+            const fuelTaxRates = {
+                // Ligji në fuqi: e njëjta vlerë për çdo cilindratë
+                current: {
+                    Petrol:   { upTo2000: 10,   above2000: 10 },
+                    Diesel:   { upTo2000: 12.5, above2000: 12.5 },
+                    Electric: { upTo2000: 0,    above2000: 0 }
+                },
+                // Ndryshimet e propozuara
+                proposed: {
+                    Petrol:   { upTo2000: 20, above2000: 21 },
+                    Diesel:   { upTo2000: 25, above2000: 26 },
+                    Electric: { upTo2000: 0,  above2000: 0 }
+                }
+            };
+
+            const modeNames = {
+                current: 'Ligji në fuqi',
+                proposed: 'Ndryshimet e propozuara'
+            };
+
+            // Function to get the selected law mode
+            function getSelectedMode() {
+                return $('input[name="taxMode"]:checked').val() || 'current';
+            }
+
+            // Function to get the fuel tax for the fuel type, engine capacity and mode
+            function getFuelTax(fuelType, engineCapacity, mode) {
+                const band = engineCapacity > ENGINE_THRESHOLD_CC ? 'above2000' : 'upTo2000';
+                return fuelTaxRates[mode][fuelType][band];
+            }
+
+            // Function to show/hide the notice for the proposed changes
+            function updateModeNotice() {
+                $('#modeNotice').toggleClass('show', getSelectedMode() === 'proposed');
+            }
+
+            // Function to get coefficient based on vehicle type and age
+            function getCoefficient(vehicleType, age) {
+                const table = coefficients[vehicleType];
+                
+                if (age <= 24) {
+                    return table[age] || 0;
+                }
+                
+                // Handle years beyond 24
+                if (vehicleType === 'Cars') {
+                    // After 24 years: increments by +0.04 per year
+                    return 0.74 + (age - 24) * 0.04;
+                } else if (vehicleType === 'Trucks') {
+                    // After 24 years: fixed at 0.6
+                    return 0.6;
+                } else if (vehicleType === 'Buses') {
+                    // After 24 years: increments by +0.03 per year
+                    return 0.44 + (age - 24) * 0.03;
+                }
+                
+                return 0;
+            }
+
+            // Function to calculate vehicle age
+            function calculateAge(makeYear) {
+                const currentYear = new Date().getFullYear();
+                return currentYear - makeYear;
+            }
+
+            // Function to get selected vehicle type
+            function getSelectedVehicleType() {
+                const checked = $('input[name="vehicleType"]:checked');
+                return checked.length > 0 ? checked.val() : null;
+            }
+
+            // Function to get selected fuel type
+            function getSelectedFuelType() {
+                const checked = $('input[name="fuelType"]:checked');
+                return checked.length > 0 ? checked.val() : null;
+            }
+
+            // Function to get fuel type display name
+            function getFuelTypeDisplayName(fuelType) {
+                const names = {
+                    'Petrol': 'Benzinë',
+                    'Diesel': 'Naftë',
+                    'Electric': 'Elektrike'
+                };
+                return names[fuelType] || fuelType;
+            }
+
+            // Function to get vehicle type display name
+            function getVehicleTypeDisplayName(vehicleType) {
+                const names = {
+                    'Cars': 'Motomjete, autovetura, ATP',
+                    'Trucks': 'Gjithe te tjerat (APV)',
+                    'Buses': 'Autobuset'
+                };
+                return names[vehicleType] || vehicleType;
+            }
+
+            // Function to calculate and display tax
+            function calculateTax() {
+                const vehicleType = getSelectedVehicleType();
+                const engineCapacity = $('#engineCapacity').val();
+                const fuelType = getSelectedFuelType();
+                const makeYear = $('#makeYear').val();
+                const currentYear = new Date().getFullYear();
+                const mode = getSelectedMode();
+                
+                // Hide errors initially
+                $('.error').removeClass('show');
+                
+                // Validate inputs (allow 0 for engine capacity for electric vehicles)
+                if (!vehicleType || engineCapacity === '' || engineCapacity < 0 || !fuelType || !makeYear || makeYear < 1900 || makeYear > currentYear) {
+                    $('#result').removeClass('show');
+                    return;
+                }
+                
+                const age = calculateAge(makeYear);
+                
+                if (age < 0) {
+                    $('#result').removeClass('show');
+                    return;
+                }
+
+                const cc = Number(engineCapacity);
+                
+                // Get coefficient
+                const coefficient = getCoefficient(vehicleType, age);
+                
+                // Get fuel tax (depends on the selected mode and, in proposed mode, on the engine capacity)
+                const fuelTaxValue = getFuelTax(fuelType, cc, mode);
+                
+                // Calculate tax (Electric vehicles with fuel_tax 0 will result in 0 tax, which is correct)
+                const baseTaxAmount = cc * coefficient * fuelTaxValue;
+                
+                // Add VAT (TVSH) - 200 Lekë
+                // - Always for Electric
+                // - For Petrol/Diesel only when vehicle age is 3 years or less
+                let vatAmount = 0;
+                if (fuelType === 'Electric') {
+                    vatAmount = 200;
+                } else if ((fuelType === 'Petrol' || fuelType === 'Diesel') && age <= 3) {
+                    vatAmount = 200;
+                }
+                const totalTaxAmount = baseTaxAmount + vatAmount;
+                
+                // Display results
+                $('#resultTaxLabel').text(mode === 'proposed' ? 'Shuma Totale e Taksës (sipas propozimit)' : 'Shuma Totale e Taksës');
+                $('#resultMode').text(modeNames[mode]);
+                $('#resultVehicleType').text(getVehicleTypeDisplayName(vehicleType));
+                $('#resultAge').text(age + ' vit' + (age !== 1 ? 'e' : ''));
+                $('#resultEngineCapacity').text(cc.toLocaleString() + ' cc');
+                $('#resultFuelType').text(getFuelTypeDisplayName(fuelType));
+                $('#resultFuelTax').text(fuelTaxValue);
+                $('#resultCoefficient').text(coefficient.toFixed(4));
+                $('#resultBaseTax').text(baseTaxAmount.toFixed(0) + ' Lekë');
+                
+                // Show/hide VAT row based on whether VAT applies
+                if (vatAmount > 0) {
+                    $('#resultVAT').text(vatAmount.toFixed(0) + ' Lekë');
+                    $('#resultVATRow').show();
+                } else {
+                    $('#resultVATRow').hide();
+                }
+                
+                $('#resultTaxAmount').text(totalTaxAmount.toFixed(0) + ' Lekë');
+                
+                // Show result
+                $('#result').addClass('show');
+            }
+
+            // Function to validate form
+            function validateForm() {
+                let isValid = true;
+                
+                // Reset errors
+                $('.error').removeClass('show');
+                
+                const vehicleType = getSelectedVehicleType();
+                const engineCapacity = $('#engineCapacity').val();
+                const fuelType = getSelectedFuelType();
+                const makeYear = $('#makeYear').val();
+                const currentYear = new Date().getFullYear();
+                
+                if (!vehicleType) {
+                    $('#vehicleTypeError').addClass('show');
+                    isValid = false;
+                }
+                
+                // Allow 0 for engine capacity (electric vehicles have 0cc)
+                if (engineCapacity === '' || engineCapacity < 0) {
+                    $('#engineCapacityError').addClass('show');
+                    isValid = false;
+                }
+                
+                if (!fuelType) {
+                    $('#fuelTypeError').addClass('show');
+                    isValid = false;
+                }
+                
+                if (!makeYear || makeYear < 1900 || makeYear > currentYear) {
+                    $('#makeYearError').text('Vendosni një vit të vlefshëm (1900-' + currentYear + ')').addClass('show');
+                    isValid = false;
+                }
+                
+                return isValid;
+            }
+
+            // Form submission handler
+            $('#taxForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                if (!validateForm()) {
+                    return;
+                }
+                
+                calculateTax();
+                
+                // Scroll to result
+                $('html, body').animate({
+                    scrollTop: $('#result').offset().top - 20
+                }, 500);
+            });
+
+            // Reset button handler (keeps the selected law mode)
+            $('#resetBtn').on('click', function() {
+                $('#taxForm')[0].reset();
+                $('input[type="checkbox"]').prop('checked', false);
+                $('.checkbox-item').removeClass('checked');
+                $('.error').removeClass('show');
+                $('#result').removeClass('show');
+                $('#resultVATRow').hide();
+            });
+
+            // Law mode toggle: update the notice and recalculate
+            $('input[name="taxMode"]').on('change', function() {
+                updateModeNotice();
+                calculateTax();
+            });
+
+            // Make checkboxes mutually exclusive within each group and trigger calculation
+            $('input[name="vehicleType"]').on('change', function() {
+                if ($(this).is(':checked')) {
+                    $('input[name="vehicleType"]').not(this).prop('checked', false);
+                    $(this).closest('.checkbox-group').find('.checkbox-item').removeClass('checked');
+                    $(this).closest('.checkbox-item').addClass('checked');
+                } else {
+                    $(this).closest('.checkbox-item').removeClass('checked');
+                }
+                $('#vehicleTypeError').removeClass('show');
+                calculateTax();
+            });
+
+            $('input[name="fuelType"]').on('change', function() {
+                if ($(this).is(':checked')) {
+                    $('input[name="fuelType"]').not(this).prop('checked', false);
+                    $(this).closest('.checkbox-group').find('.checkbox-item').removeClass('checked');
+                    $(this).closest('.checkbox-item').addClass('checked');
+                } else {
+                    $(this).closest('.checkbox-item').removeClass('checked');
+                }
+                $('#fuelTypeError').removeClass('show');
+                calculateTax();
+            });
+
+            // Handle label clicks - let the label's 'for' attribute work naturally
+            $('.checkbox-item label').on('click', function(e) {
+                // The label's 'for' attribute will automatically check the checkbox
+                // We just need to trigger the change event after the browser handles it
+                const checkbox = $(this).attr('for') ? $('#' + $(this).attr('for')) : $(this).siblings('input[type="checkbox"]');
+                setTimeout(function() {
+                    checkbox.trigger('change');
+                }, 10);
+            });
+
+            // Update checkbox item styling on click (for clicks on the div itself)
+            $('.checkbox-item').on('click', function(e) {
+                // Don't handle if clicking on label or checkbox directly
+                if (e.target.tagName === 'LABEL' || e.target.type === 'checkbox') {
+                    return;
+                }
+                // For clicks on the div itself, toggle the checkbox
+                const checkbox = $(this).find('input[type="checkbox"]');
+                checkbox.prop('checked', !checkbox.prop('checked')).trigger('change');
+            });
+
+            // Initialize checked state styling
+            $('input[type="checkbox"]:checked').each(function() {
+                $(this).closest('.checkbox-item').addClass('checked');
+            });
+
+            // Initialize the mode notice
+            updateModeNotice();
+
+            $('#engineCapacity, #makeYear').on('input', function() {
+                $(this).next('.error').removeClass('show');
+                calculateTax();
+            });
+        });
+    </script>
+
+
+
+</body></html>
